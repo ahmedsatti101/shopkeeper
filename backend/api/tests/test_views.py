@@ -17,8 +17,7 @@ class ItemsViewTests(TestCase):
         Item.objects.all().delete()
         response = client.get("/api/items/")
         
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertContains(response, text="No items available")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_all_items(self):
         response = client.get("/api/items/")
@@ -28,6 +27,14 @@ class ItemsViewTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {"items": serializer.data})
 
-    def test_sould_return_404_for_wrong_endpoint(self):
+    def test_should_return_404_for_wrong_endpoint(self):
         response = client.get("/api/item/")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_data_filtered_by_query_param(self):
+        response = client.get("/api/items/?q=te")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_no_data_returned_from_query(self):
+        response = client.get("/api/items/?q=cadb")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

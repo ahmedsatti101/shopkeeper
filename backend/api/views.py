@@ -18,11 +18,15 @@ class ItemsView(generics.ListCreateAPIView):
     serializer_class = ItemSerializer
 
     def get(self, request):
+        q = request.GET.get('q', '')
         items = Item.objects.all()
+
+        if q:
+            items = items.filter(name__icontains=q)
+        
         serializer = ItemSerializer(items, many=True)
 
         if not serializer.data:
-            return Response({"Error": "No items available"},
-                            status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
         return Response({"items": serializer.data}, status=status.HTTP_200_OK)

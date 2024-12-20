@@ -39,11 +39,22 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema"
 }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1)
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Shopkeeper API',
+    'DESCRIPTION': 'This API allows a shopkeeper to sell whatever they wish to sell.',
+    'CONTACT': {
+        'name': 'Ahmed Mohamed',
+        'email': 'ahmedysatti@gmail.com'
+    },
+    'SERVE_INCLUDE_SCHEMA': False
 }
 
 # Application definition
@@ -58,7 +69,9 @@ INSTALLED_APPS = [
     'api',
     'rest_framework',
     'corsheaders',
-    'djmoney'
+    'djmoney',
+    'django.contrib.postgres',
+    'drf_spectacular'
 ]
 
 MIDDLEWARE = [
