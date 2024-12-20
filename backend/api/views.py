@@ -20,4 +20,9 @@ class ItemsView(generics.ListCreateAPIView):
     def get(self, request):
         items = Item.objects.all()
         serializer = ItemSerializer(items, many=True)
+
+        if not serializer.data:
+            return Response({"Error": "No items available"},
+                            status=status.HTTP_200_OK)
+
         return Response({"items": serializer.data}, status=status.HTTP_200_OK)
