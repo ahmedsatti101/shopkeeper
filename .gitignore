@@ -1,0 +1,12 @@
+# Python
+env/
+*.pyc
+__pycache__/
+migrations/
+
+# React
+frontend/node_modules/
+frontend/.env
+
+# Logs
+*.log
