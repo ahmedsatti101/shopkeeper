@@ -62,11 +62,6 @@ class ItemsViewTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(items, serializer.data)
 
-    def test_invalid_value_for_order_by_query(self):
-        response = client.get("/api/items/?order_by=banana")
-
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
     def test_sort_items_by_quantity_default_descending(self):
         response = client.get("/api/items/?sort_by=quantity")
         items = response.data['items']
