@@ -1,7 +1,10 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Item
 from djmoney.money import Money
+
+User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):

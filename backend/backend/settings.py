@@ -170,3 +170,5 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 SERIALIZATION_MODULES = {"json": "djmoney.serializers"}
+
+AUTH_USER_MODEL = "api.User"

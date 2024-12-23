@@ -1,10 +1,13 @@
 from django.shortcuts import render
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import UserSerializer, ItemSerializer
 from .models import Item
+
+User = get_user_model()
 
 
 class CreateUserView(generics.CreateAPIView):
