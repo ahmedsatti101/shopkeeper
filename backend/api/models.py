@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from djmoney.models.fields import MoneyField
 
 CATEGORIES = (
@@ -15,3 +15,8 @@ class Item(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class User(AbstractUser):
+    basket = models.JSONField(blank=True, default=dict)
+    avatar = models.ImageField()
