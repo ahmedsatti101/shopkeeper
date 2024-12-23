@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import UserSerializer, ItemSerializer
 from .models import Item
+from rest_framework.decorators import api_view
 
 User = get_user_model()
 
@@ -43,3 +44,20 @@ class ItemsView(generics.ListCreateAPIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         return Response({"items": serializer.data}, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+def add_to_basket(request):
+    data = {
+        "name": request.data.get("name"),
+        "price": request.data.get("price"),
+        "category": request.data.get("category"),
+        "quantity": request.data.get("quantity")
+    }
+
+    serializer = ItemSerializer(data=data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(status=status.HTTP_201_CREATED)
+    return Response(status=status.HTTP_400_BAD_REQUEST)

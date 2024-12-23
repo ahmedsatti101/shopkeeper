@@ -9,7 +9,7 @@ CATEGORIES = (
 
 class Item(models.Model):
     name = models.CharField(max_length=100)
-    price = MoneyField(default_currency='GBP', max_digits=19, decimal_places=4)
+    price = MoneyField(default_currency='GBP', max_digits=4, decimal_places=2)
     category = models.CharField(choices=CATEGORIES)
     quantity = models.IntegerField(default=50, editable=True)
 

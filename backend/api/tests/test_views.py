@@ -2,19 +2,20 @@ from django.test import TestCase, Client
 from api.serializers import ItemSerializer
 from api.models import Item
 from rest_framework import status
+from djmoney.money import Money
 
 client = Client()
 
 
 class ItemsViewTests(TestCase):
     def setUp(self):
-        self.item1 = Item.objects.create(name="Item 1", price=10,
+        self.item1 = Item.objects.create(name="Item 1", price=Money(10, 'GBP'),
                                          category="Snack", quantity=2000)
-        self.item2 = Item.objects.create(name="Item 2", price=20,
+        self.item2 = Item.objects.create(name="Item 2", price=Money(20, 'GBP'),
                                          category="Drink", quantity=5000)
-        self.lucazede = Item.objects.create(name="Lucazede", price=1.80,
+        self.lucazede = Item.objects.create(name="Lucazede", price=Money(1.80, 'GBP'),
                                             category="Drink", quantity="100")
-        self.onion = Item.objects.create(name="Onions", price=1.20,
+        self.onion = Item.objects.create(name="Onions", price=Money(1.20, 'GBP'),
                                          category="Vegetable", quantity="1000")
         self.maxDiff = None
 
@@ -79,3 +80,10 @@ class ItemsViewTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(items, serializer.data)
+
+    def test_add_items_to_basket(self):
+        response = client.post("/api/basket/", data={"name": self.item1.name,
+                                                     "category": self.item1.category,
+                                                     "price": self.item1.price,
+                                                     "quantity": self.item1.quantity}, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
