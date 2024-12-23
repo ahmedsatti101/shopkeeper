@@ -19,10 +19,20 @@ class ItemsView(generics.ListCreateAPIView):
 
     def get(self, request):
         q = request.GET.get('q', '')
-        items = Item.objects.all()
+        order_by = request.GET.get('order_by', '')
+        sort_by = request.GET.get('sort_by', '')
+        items = Item.objects.all().order_by('price')
 
         if q:
             items = items.filter(name__icontains=q)
+
+        if order_by == 'desc':
+            items = items.all().order_by('-price')
+
+        if sort_by == 'quantity' and order_by == 'asc':
+            items = items.all().order_by('quantity')
+        elif sort_by == 'quantity':
+            items = items.all().order_by('-quantity')
         
         serializer = ItemSerializer(items, many=True)
 

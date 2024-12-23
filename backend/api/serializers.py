@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Item
+from djmoney.money import Money
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -15,6 +16,13 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ItemSerializer(serializers.ModelSerializer):
+    price = serializers.SerializerMethodField()
+
     class Meta:
         model = Item
         fields = ["id", "name", "price", "category", "quantity"]
+
+    def get_price(self, obj):
+        if isinstance(obj.price, Money):
+            return f"{obj.price.amount:.2f}"
+        return f"{obj.price:.2f}"
