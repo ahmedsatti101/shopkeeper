@@ -19,13 +19,27 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ItemSerializer(serializers.ModelSerializer):
-    price = serializers.SerializerMethodField()
+    price = serializers.JSONField()
 
     class Meta:
         model = Item
         fields = ["id", "name", "price", "category", "quantity"]
 
-    def get_price(self, obj):
-        if isinstance(obj.price, Money):
-            return f"{obj.price.amount:.2f}"
-        return f"{obj.price:.2f}"
+    def to_representation(self, instance):
+        """Convert Money object to JSON-compatible format."""
+        representation = super().to_representation(instance)
+        if isinstance(instance.price, Money):
+            representation['price'] = {
+                "amount": instance.price.amount
+            }
+        return representation
+
+    def create(self, validated_data):
+        price = validated_data.pop('price')
+        validated_data['price'] = Money(price['amount'], 'GBP')
+        return super().create(validated_data)
+
+class AddToBasketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Item
+        fields = ["id", "name", "price", "category", "quantity"]

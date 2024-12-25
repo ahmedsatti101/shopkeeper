@@ -3,6 +3,10 @@ from api.serializers import ItemSerializer
 from api.models import Item
 from rest_framework import status
 from djmoney.money import Money
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
+from rest_framework.test import APIClient
+import json
 
 client = Client()
 
@@ -82,8 +86,83 @@ class ItemsViewTests(TestCase):
         self.assertEqual(items, serializer.data)
 
     def test_add_items_to_basket(self):
-        response = client.post("/api/basket/", data={"name": self.item1.name,
-                                                     "category": self.item1.category,
-                                                     "price": self.item1.price,
-                                                     "quantity": self.item1.quantity}, content_type="application/json")
+        client = APIClient()
+        User = get_user_model()
+        user = User.objects.create_user(username='testuser', password='password')
+        client.login(username='testuser', password='password')
+
+        request_data = json.dumps({
+            "name": "Cadbury",
+            "category": "SNACKS",
+            "price": 0.60,
+            "quantity": 200,
+            "username": user.username,
+            "password": user.password
+        })
+
+        response = client.post(
+            "/api/basket/",
+            data=request_data,
+            content_type="application/json"
+        )
+        print(response.data)
+        
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_400_error_if_no_request_is_given(self):
+        client = APIClient()
+        User = get_user_model()
+        user = User.objects.create_user(username='testuser', password='password')
+        client.login(username='testuser', password='password')
+
+        request_data = json.dumps({
+            "name": "",
+            "category": "",
+            "price": {"amount": ""},
+            "quantity": "",
+        })
+
+        response = client.post(
+            "/api/basket/",
+            data=request_data,
+            content_type="application/json"
+        )
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_400_error_if_request_body_is_invalid(self):
+        client = APIClient()
+        User = get_user_model()
+        user = User.objects.create_user(username='testuser', password='password')
+        client.login(username='testuser', password='password')
+
+        request_data = json.dumps({
+            "name": "Kitkat",
+            "category": "SNACKS",
+            "price": {"amount": "0.50"},
+            "quantity": "",
+        })
+
+        response = client.post(
+            "/api/basket/",
+            data=request_data,
+            content_type="application/json"
+        )
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_403_error_user_is_not_authenticated(self):
+        request_data = json.dumps({
+            "name": "Maltesers",
+            "category": "SNACKS",
+            "price": {"amount": "0.80"},
+            "quantity": "350",
+        })
+
+        response = client.post(
+            "/api/basket/",
+            data=request_data,
+            content_type="application/json"
+        )
+        
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

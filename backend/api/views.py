@@ -4,9 +4,10 @@ from django.contrib.auth.models import User
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .serializers import UserSerializer, ItemSerializer
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from .serializers import UserSerializer, ItemSerializer, AddToBasketSerializer
 from .models import Item
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 
 User = get_user_model()
 
@@ -47,17 +48,24 @@ class ItemsView(generics.ListCreateAPIView):
 
 
 @api_view(["POST"])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def add_to_basket(request):
     data = {
         "name": request.data.get("name"),
         "price": request.data.get("price"),
         "category": request.data.get("category"),
-        "quantity": request.data.get("quantity")
+        "quantity": request.data.get("quantity"),
+        "username": str(request.user),
+        "password": str(User.password)
     }
 
-    serializer = ItemSerializer(data=data)
+    basket = request.user.basket
+    print(basket)
+
+    serializer = AddToBasketSerializer(data=data)
 
     if serializer.is_valid():
         serializer.save()
         return Response(status=status.HTTP_201_CREATED)
-    return Response(status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
