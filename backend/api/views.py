@@ -5,9 +5,10 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from .serializers import UserSerializer, ItemSerializer, AddToBasketSerializer
-from .models import Item
+from .serializers import UserSerializer, ItemSerializer, BasketSerializer
+from .models import Item, Basket, BasketItem
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from django.shortcuts import get_object_or_404
 
 User = get_user_model()
 
@@ -51,21 +52,14 @@ class ItemsView(generics.ListCreateAPIView):
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def add_to_basket(request):
-    data = {
-        "name": request.data.get("name"),
-        "price": request.data.get("price"),
-        "category": request.data.get("category"),
-        "quantity": request.data.get("quantity"),
-        "username": str(request.user),
-        "password": str(User.password)
-    }
+    item_id = request.data.get("item_id")
+    quantity = request.data.get("quantity")
 
-    basket = request.user.basket
-    print(basket)
+    try:
+        item = get_object_or_404(Item, pk=item_id)
+        basket_obj, _ = Basket.objects.get_or_create(user=request.user, quantity=quantity)
+        BasketItem.objects.create(basket=basket_obj, item=item, item_quantity=quantity, user=request.user)
+    except ValueError:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    serializer = AddToBasketSerializer(data=data)
-
-    if serializer.is_valid():
-        serializer.save()
-        return Response(status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(status=status.HTTP_201_CREATED)

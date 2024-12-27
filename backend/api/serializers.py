@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Item
+from .models import Item, BasketItem
 from djmoney.money import Money
 
 User = get_user_model()
@@ -19,27 +19,19 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ItemSerializer(serializers.ModelSerializer):
-    price = serializers.JSONField()
+    price = serializers.SerializerMethodField()
 
     class Meta:
         model = Item
         fields = ["id", "name", "price", "category", "quantity"]
 
-    def to_representation(self, instance):
-        """Convert Money object to JSON-compatible format."""
-        representation = super().to_representation(instance)
-        if isinstance(instance.price, Money):
-            representation['price'] = {
-                "amount": instance.price.amount
-            }
-        return representation
+    def get_price(self, obj):
+        if isinstance(obj.price, Money):
+            return f"{obj.price.amount:.2f}"
+        return f"{obj.price:.2f}"
 
-    def create(self, validated_data):
-        price = validated_data.pop('price')
-        validated_data['price'] = Money(price['amount'], 'GBP')
-        return super().create(validated_data)
 
-class AddToBasketSerializer(serializers.ModelSerializer):
+class BasketSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Item
-        fields = ["id", "name", "price", "category", "quantity"]
+        model = BasketItem
+        fields = ["item", "item_quantity"]
