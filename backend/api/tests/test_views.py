@@ -1,12 +1,13 @@
 from django.test import TestCase, Client
 from api.serializers import ItemSerializer
-from api.models import Item
+from api.models import Item, Basket
 from rest_framework import status
 from djmoney.money import Money
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 import json
+from django.shortcuts import get_object_or_404
 
 client = Client()
 
@@ -105,6 +106,84 @@ class ItemsViewTests(TestCase):
         )
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_quantity_of_item_decreased_when_added_to_basket(self):
+        client = APIClient()
+        User = get_user_model()
+        user = User.objects.create_user(username='testuser', password='password')
+        client.login(username='testuser', password='password')
+        
+        request_data = json.dumps({
+            "item_id": self.onion.id,
+            "quantity": 1,
+            "username": user.username,
+            "password": user.password
+        })
+
+        response = client.post(
+            "/api/basket/",
+            data=request_data,
+            content_type="application/json"
+        )
+
+        res = get_object_or_404(Item, name="Onions")
+ 
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.quantity, 999)
+
+    def test_total_sum_for_basket(self):
+        client = APIClient()
+        User = get_user_model()
+        user = User.objects.create_user(username='testuser', password='password')
+        client.login(username='testuser', password='password')
+                
+        request_data = json.dumps({
+            "item_id": self.onion.id,
+            "quantity": 1,
+            "username": user.username,
+            "password": user.password
+        })
+
+        response = client.post(
+            "/api/basket/",
+            data=request_data,
+            content_type="application/json"
+        )
+
+        res = get_object_or_404(Item, name="Onions")
+        basket = Basket.objects.get(user=user)
+ 
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.quantity, 999)
+        self.assertEqual(basket.total, res.price.amount)
+
+    def test_total_sum_for_basket_with_larger_quantity(self):
+        client = APIClient()
+        User = get_user_model()
+        user = User.objects.create_user(username='testuser', password='password')
+        client.login(username='testuser', password='password')
+
+        request_data = json.dumps({
+            "item_id": self.lucazede.id,
+            "quantity": 10,
+            "username": user.username,
+            "password": user.password
+        })
+
+        response = client.post(
+            "/api/basket/",
+            data=request_data,
+            content_type="application/json"
+        )
+
+        lucazedes = get_object_or_404(Item, name="Lucazede")
+        basket = Basket.objects.get(user=user)
+ 
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        self.assertEqual(lucazedes.quantity, 90)
+        
+        self.assertEqual(basket.total, 18)
 
     def test_400_error_if_request_body_is_invalid(self):
         client = APIClient()

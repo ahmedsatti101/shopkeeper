@@ -5,10 +5,11 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from .serializers import UserSerializer, ItemSerializer, BasketSerializer
+from .serializers import UserSerializer, ItemSerializer
 from .models import Item, Basket, BasketItem
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from django.shortcuts import get_object_or_404
+from decimal import Decimal
 
 User = get_user_model()
 
@@ -52,13 +53,22 @@ class ItemsView(generics.ListCreateAPIView):
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def add_to_basket(request):
+    #to do
+    #check if the requested item is in BasketItem
+    #if true only increment its quantity
+    #else add it
     item_id = request.data.get("item_id")
     quantity = request.data.get("quantity")
 
     try:
         item = get_object_or_404(Item, pk=item_id)
-        basket_obj, _ = Basket.objects.get_or_create(user=request.user, quantity=quantity)
-        BasketItem.objects.create(basket=basket_obj, item=item, item_quantity=quantity, user=request.user)
+        basket_obj, _ = Basket.objects.get_or_create(user=request.user,
+                                                     defaults={'quantity': quantity})
+        BasketItem.objects.create(basket=basket_obj, item=item,
+                                  item_quantity=quantity, user=request.user)
+        basket_obj.total += float(item.price.amount * quantity)
+        basket_obj.save()
+        Item.decrease_stock(item_id=item_id, quantity=quantity)
     except ValueError:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 

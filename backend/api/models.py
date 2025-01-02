@@ -16,23 +16,34 @@ class Item(models.Model):
     def __str__(self):
         return self.name
 
+    def decrease_stock(item_id, quantity):
+        res = Item.objects.get(pk=item_id)
+
+        if res.quantity >= quantity:
+            res.quantity -= quantity
+            res.save()
+        else:
+            return "Not enough stock available"
+
 
 class User(AbstractUser):
     avatar = models.ImageField()
 
 
 class Basket(models.Model):
-    basket_id = models.CharField(primary_key=True, editable=False)
     total = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
     quantity = models.IntegerField()
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Basket of {self.user.username} (ID: {self.basket_id})"
+        return f"Basket of {self.user.username}"
 
 
 class BasketItem(models.Model):
     basket = models.ForeignKey(Basket, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     item_quantity = models.IntegerField(default=0)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Items in basket {self.user.username}"
