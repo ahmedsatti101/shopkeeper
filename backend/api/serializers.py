@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Item
+from .models import Item, BasketItem
 from djmoney.money import Money
 
 User = get_user_model()
@@ -29,3 +29,9 @@ class ItemSerializer(serializers.ModelSerializer):
         if isinstance(obj.price, Money):
             return f"{obj.price.amount:.2f}"
         return f"{obj.price:.2f}"
+
+
+class BasketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BasketItem
+        fields = ["item", "item_quantity"]
