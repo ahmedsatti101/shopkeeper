@@ -3,6 +3,7 @@ env/
 *.pyc
 __pycache__/
 migrations/
+.env
 
 # React
 frontend/node_modules/
