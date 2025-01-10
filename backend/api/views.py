@@ -1,15 +1,18 @@
-from django.shortcuts import render
+from decimal import Decimal
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404, render
 from rest_framework import generics, status
+from rest_framework.authentication import (BasicAuthentication,
+                                           SessionAuthentication)
+from rest_framework.decorators import (api_view, authentication_classes,
+                                       permission_classes)
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from .serializers import UserSerializer, ItemSerializer
-from .models import Item, Basket, BasketItem
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from django.shortcuts import get_object_or_404
-from decimal import Decimal
+
+from .models import Basket, BasketItem, Item
+from .serializers import ItemSerializer, UserSerializer
 
 User = get_user_model()
 
@@ -25,22 +28,22 @@ class ItemsView(generics.ListCreateAPIView):
     serializer_class = ItemSerializer
 
     def get(self, request):
-        q = request.GET.get('q', '')
-        order_by = request.GET.get('order_by', '')
-        sort_by = request.GET.get('sort_by', '')
-        items = Item.objects.all().order_by('price')
+        q = request.GET.get("q", "")
+        order_by = request.GET.get("order_by", "")
+        sort_by = request.GET.get("sort_by", "")
+        items = Item.objects.all().order_by("price")
 
         if q:
             items = items.filter(name__icontains=q)
 
-        if order_by == 'desc':
-            items = items.all().order_by('-price')
+        if order_by == "desc":
+            items = items.all().order_by("-price")
 
-        if sort_by == 'quantity' and order_by == 'asc':
-            items = items.all().order_by('quantity')
-        elif sort_by == 'quantity':
-            items = items.all().order_by('-quantity')
-        
+        if sort_by == "quantity" and order_by == "asc":
+            items = items.all().order_by("quantity")
+        elif sort_by == "quantity":
+            items = items.all().order_by("-quantity")
+
         serializer = ItemSerializer(items, many=True)
 
         if not serializer.data:
@@ -53,23 +56,48 @@ class ItemsView(generics.ListCreateAPIView):
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def add_to_basket(request):
-    #to do
-    #check if the requested item is in BasketItem
-    #if true only increment its quantity
-    #else add it
     item_id = request.data.get("item_id")
     quantity = request.data.get("quantity")
 
-    try:
-        item = get_object_or_404(Item, pk=item_id)
-        basket_obj, _ = Basket.objects.get_or_create(user=request.user,
-                                                     defaults={'quantity': quantity})
-        BasketItem.objects.create(basket=basket_obj, item=item,
-                                  item_quantity=quantity, user=request.user)
-        basket_obj.total += float(item.price.amount * quantity)
-        basket_obj.save()
-        Item.decrease_stock(item_id=item_id, quantity=quantity)
-    except ValueError:
+    if isinstance(item_id, int) is not True:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    # check if the item exists
+    try:
+        item = Item.objects.get(pk=item_id)
+    except Item.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    # create basket for user if doesn't exist
+    # otherwise get the basket
+    try:
+        basket = Basket.objects.get(user=request.user)
+    except Basket.DoesNotExist:
+        basket = Basket.objects.create(user=request.user)
+        basket.save()
+
+    # add item to basket if doesn't exist
+    # otherwise increment its quantity & price
+    try:
+        basket_item = BasketItem.objects.get(item=item, basket=basket)
+        basket_item.item_quantity += quantity
+        basket_item.save()
+    except BasketItem.DoesNotExist:
+        basket_item = BasketItem.objects.create(
+            basket=basket,
+            item=item,
+            item_quantity=quantity,
+            user=request.user,
+        )
+
+    basket_items = BasketItem.objects.filter(basket=basket)
+    total_price = sum(
+        item.item.price.amount * item.item_quantity for item in basket_items
+    )
+
+    basket.total = total_price
+    basket.quantity = basket_items.count()
+    basket.save()
+
+    Item.decrease_stock(item_id=item_id, quantity=quantity)
     return Response(status=status.HTTP_201_CREATED)
