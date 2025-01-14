@@ -96,9 +96,10 @@ def add_to_basket(request):
     total_price = sum(
         item.item.price.amount * item.item_quantity for item in basket_items
     )
+    total_quantity = sum(item.item_quantity for item in basket_items)
 
     basket.total = total_price
-    basket.quantity = basket_items.count()
+    basket.quantity = total_quantity
     basket.save()
 
     Item.decrease_stock(item_id=item_id, quantity=quantity)
@@ -118,22 +119,17 @@ def delete_item_from_basket(request, item_id):
 
     basket_item = BasketItem.objects.filter(basket=user_basket, item=item).first()
 
+    # add item quantity back to stock
     item.quantity += basket_item.item_quantity
     item.save()
 
     total_price_change = basket_item.item_quantity * item.price.amount
-    user_basket.total = max(
-        user_basket.total - total_price_change, 0
-    )  # Avoid negative price
-    user_basket.quantity = max(
-        user_basket.quantity - basket_item.item_quantity, 0
-    )  # Avoid negative quantity
+    total_quantity_change = user_basket.quantity - basket_item.item_quantity
+
+    user_basket.total = user_basket.total - total_price_change
+    user_basket.quantity = total_quantity_change
+
     user_basket.save()
-
-    # Check if basket is empty
-    if user_basket.quantity == 0:
-        user_basket.total = 0
-        user_basket.save()
-
     basket_item.delete()
+
     return Response(status=status.HTTP_204_NO_CONTENT)

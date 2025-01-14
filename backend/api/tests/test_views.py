@@ -310,19 +310,17 @@ class ItemsViewTests(TestCase):
         user = User.objects.create_user(username="testuser", password="password")
         client.login(username="testuser", password="password")
 
-        basket = Basket.objects.create(user=user, quantity=1, total=7.20)
+        basket = Basket.objects.create(user=user, total=3.60, quantity=2)
         BasketItem.objects.create(
-            basket=basket,
-            item=self.lucazede,
-            item_quantity=4,
-            user=user,
+            basket=basket, item=self.lucazede, item_quantity=2, user=user
         )
 
         response = client.delete(f"/api/basket/{self.lucazede.id}")
 
+        basket.refresh_from_db()
         self.lucazede.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(self.lucazede.quantity, 104)
+        self.assertEqual(self.lucazede.quantity, 102)
         self.assertEqual(basket.total, 0)
         self.assertEqual(basket.quantity, 0)
