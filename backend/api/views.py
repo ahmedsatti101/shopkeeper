@@ -4,10 +4,12 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render
 from rest_framework import generics, status
-from rest_framework.authentication import (BasicAuthentication,
-                                           SessionAuthentication)
-from rest_framework.decorators import (api_view, authentication_classes,
-                                       permission_classes)
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication
+from rest_framework.decorators import (
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
@@ -94,10 +96,40 @@ def add_to_basket(request):
     total_price = sum(
         item.item.price.amount * item.item_quantity for item in basket_items
     )
+    total_quantity = sum(item.item_quantity for item in basket_items)
 
     basket.total = total_price
-    basket.quantity = basket_items.count()
+    basket.quantity = total_quantity
     basket.save()
 
     Item.decrease_stock(item_id=item_id, quantity=quantity)
     return Response(status=status.HTTP_201_CREATED)
+
+
+@api_view(["DELETE"])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_item_from_basket(request, item_id):
+    user_basket = Basket.objects.get(user=request.user)
+
+    try:
+        item = Item.objects.get(pk=item_id)
+    except Item.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    basket_item = BasketItem.objects.filter(basket=user_basket, item=item).first()
+
+    # add item quantity back to stock
+    item.quantity += basket_item.item_quantity
+    item.save()
+
+    total_price_change = basket_item.item_quantity * item.price.amount
+    total_quantity_change = user_basket.quantity - basket_item.item_quantity
+
+    user_basket.total = user_basket.total - total_price_change
+    user_basket.quantity = total_quantity_change
+
+    user_basket.save()
+    basket_item.delete()
+
+    return Response(status=status.HTTP_204_NO_CONTENT)

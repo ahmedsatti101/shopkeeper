@@ -8,7 +8,7 @@ from djmoney.money import Money
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from api.models import Basket, Item
+from api.models import Basket, BasketItem, Item
 from api.serializers import ItemSerializer
 
 client = Client()
@@ -244,3 +244,83 @@ class ItemsViewTests(TestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_204_remove_item_from_basket(self):
+        client = APIClient()
+        User = get_user_model()
+        user = User.objects.create_user(username="testuser", password="password")
+        client.login(username="testuser", password="password")
+
+        basket = Basket.objects.create(user=user)
+        BasketItem.objects.create(
+            basket=basket,
+            item=self.lucazede,
+            item_quantity=self.lucazede.quantity,
+            user=user,
+        )
+
+        response = client.delete(f"/api/basket/{self.lucazede.id}")
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_404_error_if_passed_valid_id_but_does_not_exist(self):
+        client = APIClient()
+        User = get_user_model()
+        user = User.objects.create_user(username="testuser", password="password")
+        client.login(username="testuser", password="password")
+
+        basket = Basket.objects.create(user=user)
+        BasketItem.objects.create(
+            basket=basket,
+            item=self.lucazede,
+            item_quantity=self.lucazede.quantity,
+            user=user,
+        )
+
+        response = client.delete("/api/basket/4000")
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_204_removed_item_quantity_is_added_to_stock(self):
+        client = APIClient()
+        User = get_user_model()
+        user = User.objects.create_user(username="testuser", password="password")
+        client.login(username="testuser", password="password")
+
+        basket = Basket.objects.create(user=user)
+        BasketItem.objects.create(
+            basket=basket,
+            item=self.lucazede,
+            item_quantity=4,
+            user=user,
+        )
+
+        response = client.delete(f"/api/basket/{self.lucazede.id}")
+
+        self.lucazede.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(self.lucazede.quantity, 104)
+
+    def test_204_basket_total_and_quantity_are_updated_correctly_when_item_is_deleted(
+        self,
+    ):
+        client = APIClient()
+        User = get_user_model()
+        user = User.objects.create_user(username="testuser", password="password")
+        client.login(username="testuser", password="password")
+
+        basket = Basket.objects.create(user=user, total=3.60, quantity=2)
+        BasketItem.objects.create(
+            basket=basket, item=self.lucazede, item_quantity=2, user=user
+        )
+
+        response = client.delete(f"/api/basket/{self.lucazede.id}")
+
+        basket.refresh_from_db()
+        self.lucazede.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(self.lucazede.quantity, 102)
+        self.assertEqual(basket.total, 0)
+        self.assertEqual(basket.quantity, 0)
