@@ -324,3 +324,22 @@ class ItemsViewTests(TestCase):
         self.assertEqual(self.lucazede.quantity, 102)
         self.assertEqual(basket.total, 0)
         self.assertEqual(basket.quantity, 0)
+
+    def test_200_filter_items_by_category(self):
+        request = client.get("/api/items/?category=Drink")
+        items = request.data["items"]
+        items_from_db = Item.objects.all().filter(category="Drink").order_by("price")
+        serializer = ItemSerializer(items_from_db, many=True)
+
+        self.assertEqual(request.status_code, status.HTTP_200_OK)
+        self.assertEqual(items, serializer.data)
+
+    def test_404_error_if_passed_valid_category_but_does_not_exist(self):
+        request = client.get("/api/items/?category=Sweets")
+
+        self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_404_error_if_passed_invaild_category(self):
+        request = client.get("/api/items/?category=4")
+
+        self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
