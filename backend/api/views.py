@@ -1,15 +1,10 @@
-from decimal import Decimal
-
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404, render
 from rest_framework import generics, status
-from rest_framework.authentication import BasicAuthentication, SessionAuthentication
-from rest_framework.decorators import (
-    api_view,
-    authentication_classes,
-    permission_classes,
-)
+from rest_framework.authentication import (BasicAuthentication,
+                                           SessionAuthentication)
+from rest_framework.decorators import (api_view, authentication_classes,
+                                       permission_classes)
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
@@ -33,18 +28,24 @@ class ItemsView(generics.ListCreateAPIView):
         q = request.GET.get("q", "")
         order_by = request.GET.get("order_by", "")
         sort_by = request.GET.get("sort_by", "")
-        items = Item.objects.all().order_by("price")
+        category = request.GET.get("category", "")
+        items = Item.objects.all()
 
         if q:
             items = items.filter(name__icontains=q)
 
         if order_by == "desc":
             items = items.all().order_by("-price")
+        else:
+            items = items.all().order_by("price")
 
         if sort_by == "quantity" and order_by == "asc":
             items = items.all().order_by("quantity")
         elif sort_by == "quantity":
             items = items.all().order_by("-quantity")
+
+        if category:
+            items = items.filter(category=category)
 
         serializer = ItemSerializer(items, many=True)
 

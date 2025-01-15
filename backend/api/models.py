@@ -2,12 +2,21 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from djmoney.models.fields import MoneyField
 
-CATEGORIES = (("SNACKS", "snacks"),)
+CATEGORIES = (
+    ("SNACKS", "snacks"),
+    ("HOUSEHOLD", "household"),
+    ("DAIRY", "dairy"),
+    ("VEGETABLE", "vegetable"),
+    ("FRUIT", "fruit"),
+    ("STATIONERY", "stationery"),
+    ("ELECTRONICS", "electronics"),
+    ("CLEANING", "cleaning"),
+)
 
 
 class Item(models.Model):
     name = models.CharField(max_length=100)
-    price = MoneyField(default_currency="GBP", max_digits=4, decimal_places=2)
+    price = MoneyField(default_currency="GBP", max_digits=6, decimal_places=2)
     category = models.CharField(choices=CATEGORIES)
     quantity = models.IntegerField(default=50, editable=True)
 
