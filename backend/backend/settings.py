@@ -14,6 +14,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+import dj_database_url
 from decouple import config
 from dotenv import load_dotenv
 
@@ -127,17 +128,10 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "USER": config("DATABASE_USER"),
-        "NAME": config("DATABASE_NAME"),
-        "PASSWORD": config("DATABASE_PASSWORD"),
-        "HOST": config("DATABASE_HOST"),
-        "PORT": config("DATABASE_PORT"),
-        "TEST": {"NAME": "shopkeeper_test"},
-    }
+    "default": dj_database_url.config(
+        default=os.environ["DATABASE_URL"], engine="django_cockroachdb"
+    )
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
