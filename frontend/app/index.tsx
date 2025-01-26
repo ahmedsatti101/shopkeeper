@@ -1,15 +1,11 @@
-import { Text, View } from "react-native";
+import { StatusBar } from "react-native";
+import SignUpForm from "./sign-up/index";
 
 export default function Index() {
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Hello!!!</Text>
-    </View>
-  );
+    return (
+        <>
+            <StatusBar backgroundColor="#000" />
+            <SignUpForm />
+        </>
+    );
 }
