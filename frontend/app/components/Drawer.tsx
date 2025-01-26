@@ -10,6 +10,7 @@ export default function AppDrawer() {
   return (
     <Drawer.Navigator
       initialRouteName="Home"
+      backBehavior="history"
       screenOptions={{
         drawerStyle: { backgroundColor: "#e0b688", width: 240 },
         drawerLabelStyle: {
