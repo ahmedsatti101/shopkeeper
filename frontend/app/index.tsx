@@ -1,11 +1,14 @@
+import "../gesture-handler";
+import "../global.css";
+
 import { StatusBar } from "react-native";
-import SignUpForm from "./sign-up/index";
+import AppDrawer from "./components/Drawer";
 
 export default function Index() {
     return (
         <>
             <StatusBar backgroundColor="#000" />
-            <SignUpForm />
+            <AppDrawer />
         </>
     );
 }
