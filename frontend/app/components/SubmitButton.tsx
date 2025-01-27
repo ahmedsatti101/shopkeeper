@@ -1,6 +1,6 @@
 import { Pressable, Text } from "react-native";
 
-const Button = () => {
+const Button = ({ text }: any) => {
     const handlePress = () => {
         console.log("Pressed");
     };
@@ -15,7 +15,7 @@ const Button = () => {
             onPressOut={handleRelease}
             accessibilityLabel="Form submit button"
         >
-            <Text className="text-black text-base font-serif font-bold">Submit</Text>
+            <Text className="text-black text-base font-serif font-bold">{text}</Text>
         </Pressable>
     );
 };

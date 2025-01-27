@@ -6,8 +6,9 @@ describe("<SignUpForm />", () => {
   beforeEach(() => {
     render(<SignUpForm />);
   });
+
   test("Should render 'Sign up' text", () => {
-    screen.getByText("Sign up");
+    screen.getAllByText("Sign up");
   });
   test("Should render 'Username' text", () => {
     screen.getByText("Username");
@@ -29,12 +30,10 @@ describe("<SignUpForm />", () => {
   test("Should render password requirements text", () => {
     screen.getByTestId("password-requirements");
   });
-
   test("Should render Submit button", () => {
     screen.getByLabelText("Form submit button");
   });
-
   test("Should render 'Already a customer? Sign in' text", () => {
-    screen.getByText("Already a customer? Sign in")
-  })
+    screen.getByText("Already a customer? Sign in");
+  });
 });
