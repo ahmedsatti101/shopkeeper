@@ -51,7 +51,7 @@ export default function SignUpForm() {
                 />
             </View>
 
-            <Button />
+            <Button text="Sign up"/>
             <Text className="text-center font-serif text-base font-bold mt-[20px]">
                 Already a customer? Sign in
             </Text>
