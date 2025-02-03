@@ -52,7 +52,7 @@ export default function Dropdown({
     };
 
     return (
-        <View ref={buttonRef} onLayout={onButtonLayout}>
+        <View ref={buttonRef} onLayout={onButtonLayout} testID="quantity-dropdownmenu">
             <TouchableOpacity
                 style={styles.button}
                 activeOpacity={0.8}
