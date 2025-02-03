@@ -22,4 +22,4 @@ Create a Python virtual environment by typing `python3 -m venv env` or `python -
 - [Frontend README.md](./frontend/README.md)
 - [Backend README.md](./backend/README.md)
 
-![Screenshot from dev](./frontend/assets/images/Screenshot from 2025-01-27 14-53-29.png)
+![Screenshot from dev](./frontend/assets/images/Screenshot%20from%202025-01-27%2014-53-29.png)
