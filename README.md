@@ -21,3 +21,5 @@ Create a Python virtual environment by typing `python3 -m venv env` or `python -
 ### Now you can read how to run both the backend and frontend by following their `README.md`:
 - [Frontend README.md](./frontend/README.md)
 - [Backend README.md](./backend/README.md)
+
+![Screenshot from dev](./frontend/assets/images/Screenshot%20from%202025-01-27%2014-53-29.png)
