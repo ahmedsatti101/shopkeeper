@@ -6,7 +6,7 @@ const image = require("../../assets/images/download.jpeg");
 const trash = require("../../assets/images/trash.png");
 
 interface Props {
-  title: string;
+  name: string;
   price: any;
 }
 
@@ -15,7 +15,7 @@ const DATA = Array.from({ length: 20 }, (_, index) => ({
   value: index + 1,
 }));
 
-export default function BasketItem({ title, price }: Props) {
+export default function BasketItem({ name, price }: Props) {
   const [quantity, setQuantity] = useState(1);
 
   return (
@@ -23,7 +23,7 @@ export default function BasketItem({ title, price }: Props) {
       <View className="bg-[#cc9861] flex-row shadow-[0px_0px_30px_0px_rgba(0,0,0,0.40)] items-center m-4">
         <Image alt="Image" source={image} style={{ width: 120, height: 133 }} testID="basket-item-image"/>
         <View className="px-4 pb-15">
-          <Text className="font-serif font-bold text-lg" testID="basket-item-name">{title}</Text>
+          <Text className="font-serif font-bold text-lg" testID="basket-item-name">{name}</Text>
           <Text className="font-serif text-lg" testID="basket-item-price">£{price}</Text>
           <Dropdown
             data={DATA}
