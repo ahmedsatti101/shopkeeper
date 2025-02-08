@@ -32,7 +32,7 @@ export default function AppDrawer() {
         swipeEdgeWidth: 85
       }}
     >
-      <Drawer.Screen name="Home" component={() => <Home name="Apple" price="0.80" quantity={10}/>} />
+      <Drawer.Screen name="Home" component={Home} />
       <Drawer.Screen name="Sign up" component={SignUpForm} />
       <Drawer.Screen name="Sign in" component={SignInForm} />
       <Drawer.Screen name="Basket" component={Basket} />
