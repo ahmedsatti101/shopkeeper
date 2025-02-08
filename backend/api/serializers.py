@@ -23,7 +23,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        fields = ["id", "name", "price", "category", "quantity"]
+        fields = ["id", "name", "price", "category", "quantity", "image"]
 
     def get_price(self, obj):
         if isinstance(obj.price, Money):
