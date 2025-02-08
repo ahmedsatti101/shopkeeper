@@ -3,13 +3,12 @@ import { getItems } from "../api";
 import { useEffect, useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 
-const image = require("../../assets/images/download.jpeg");
-
 interface Item {
     id: number;
     name: string;
     price: string;
     quantity: number;
+    image: any;
 }
 
 export default function Home() {
@@ -39,8 +38,8 @@ export default function Home() {
                     return (
                         <View className="bg-[#cc986185] m-5" key={item.id}>
                             <Image
-                                source={image}
-                                style={{ width: "100%" }}
+                                source={{uri: `https://shopkeeper-e1dz.onrender.com${item.image}`}}
+                                style={{ width: "100%", height: 100 }}
                                 alt={`Image of ${item.name}`}
                             />
                             <View className="p-2">
