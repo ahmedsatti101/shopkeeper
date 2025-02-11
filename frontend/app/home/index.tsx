@@ -8,7 +8,7 @@ interface Item {
     name: string;
     price: string;
     quantity: number;
-    image: any;
+    image: string;
 }
 
 export default function Home() {
