@@ -39,7 +39,7 @@ export default function Home() {
                         <View className="bg-[#cc986185] m-5" key={item.id}>
                             <Image
                                 source={{uri: `https://shopkeeper-e1dz.onrender.com${item.image}`}}
-                                style={{ width: "100%", height: 100 }}
+                                style={{ width: "100%", height: 200 }}
                                 alt={`Image of ${item.name}`}
                             />
                             <View className="p-2">
