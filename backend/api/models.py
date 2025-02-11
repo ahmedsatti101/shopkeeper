@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from djmoney.models.fields import MoneyField
+from api.storage import OverwriteStorage
 
 CATEGORIES = (
     ("SNACKS", "snacks"),
@@ -19,7 +20,7 @@ class Item(models.Model):
     price = MoneyField(default_currency="GBP", max_digits=6, decimal_places=2)
     category = models.CharField(choices=CATEGORIES)
     quantity = models.IntegerField(default=50, editable=True)
-    image = models.ImageField(default="../static/default.png", upload_to="static/")
+    image = models.ImageField(default="../static/default.png", upload_to="static/", storage=OverwriteStorage())
 
     def __str__(self):
         return self.name
