@@ -78,7 +78,7 @@ export default function SignUpForm() {
               {item}
             </Text>
           )}
-          testID="password-requirements"
+          testID="username-requirements"
         />
 
         <Text className="font-serif text-[21px] font-bold mb-[5px]">
