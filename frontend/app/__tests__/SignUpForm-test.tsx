@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react-native";
+import { renderRouter } from "expo-router/testing-library";
 import { userEvent } from "@testing-library/react-native";
 
 import SignUpForm from "../sign-up/index";
@@ -67,6 +68,37 @@ describe("<SignUpForm />", () => {
         test("Should render form label for Password field", () => {
             const label = screen.getByRole("text", { name: "Password" });
             expect(label).toBeOnTheScreen();
+        });
+    });
+    describe("Sign up Form modal", () => {
+        test("Modal should appear on screen when submit button is pressed", async () => {
+            const submitbtn = screen.getByTestId("submit-button");
+            const usernameField = screen.getByLabelText("Username text input");
+            const passwordField = screen.getByLabelText("Password input");
+            const user = userEvent.setup();
+
+            await user.type(usernameField, "Ahmed1");
+            await user.type(passwordField, "mypassword");
+            await user.press(submitbtn);
+
+            const modal = screen.getByTestId("form-modal");
+
+            expect(modal).toBeOnTheScreen();
+        });
+        test("Clicking on 'Sign in' when the modal is open, redirects to the sign in form", async () => {
+            const submitbtn = screen.getByTestId("submit-button");
+            const usernameField = screen.getByLabelText("Username text input");
+            const passwordField = screen.getByLabelText("Password input");
+            const user = userEvent.setup();
+
+            await user.type(usernameField, "Ahmed1");
+            await user.type(passwordField, "mypassword");
+            await user.press(submitbtn);
+
+            const modal = screen.getByTestId("form-modal");
+            await user.press(screen.getByRole("link"));
+
+            expect(screen).toHavePathname("/sign-in");
         });
     });
 });
