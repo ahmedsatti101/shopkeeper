@@ -16,7 +16,10 @@
     "preset": "jest-expo",
     "moduleNameMapper": {
       "\\.(css|less|scss|sass)$": "<rootDir>/styleMock.js"
-    }
+    },
+    "transformIgnorePatterns": [
+      "'node_modules/(?!((jest-)?react-native|escape-string-regexp|expo-router|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|@sentry/.*)"
+    ]
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
