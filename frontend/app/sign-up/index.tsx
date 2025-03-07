@@ -6,6 +6,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useRef, useState } from "react";
 import FormModal from "../components/Modal";
 import { router } from "expo-router";
+import { createAccount } from "../api";
 
 const USRNAMEREQS = [
   "Username can be 150 characters or less",
@@ -43,7 +44,9 @@ export default function SignUpForm() {
   } = useForm({ resolver: yupResolver(formSchema) });
 
   const onSubmit: SubmitHandler<typeof formSchema> = (data: any) => {
-      setShowModal(true);
+      createAccount(data.username, data.password)
+        .then(() => setShowModal(true))
+        .catch(err => console.log(err))
   }
 
   return (

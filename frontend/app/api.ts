@@ -10,3 +10,12 @@ export const getItems = () => {
             return err;
         });
 };
+
+export const createAccount = (username: string, password: string) => {
+    return axios
+        .post("https://shopkeeper-e1dz.onrender.com/api/user/register/", { username, password })
+        .then((response) => {
+            console.log(response.status)
+        })
+        .catch(err => console.log(err))
+};
