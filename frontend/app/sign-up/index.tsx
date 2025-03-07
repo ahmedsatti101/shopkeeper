@@ -5,6 +5,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRef, useState } from "react";
 import FormModal from "../components/Modal";
+import { router } from "expo-router";
 
 const USRNAMEREQS = [
   "Username can be 150 characters or less",
@@ -116,7 +117,7 @@ export default function SignUpForm() {
         />
       </View>
 
-      <FormModal show={showModal} onClose={() => setShowModal(false)}/>
+      <FormModal show={showModal} onAction={() => router.push("/sign-in")} title="Thank you for signing up" btnTitle="Sign in"/>
 
       <Button text="Sign up" onPress={handleSubmit(onSubmit)} />
       <Text className="text-center font-serif text-base font-bold mt-[20px]">
