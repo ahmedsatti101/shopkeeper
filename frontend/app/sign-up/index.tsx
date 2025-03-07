@@ -3,7 +3,9 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import Button from "../components/SubmitButton";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import FormModal from "../components/Modal";
+import { router } from "expo-router";
 
 const USRNAMEREQS = [
   "Username can be 150 characters or less",
@@ -32,6 +34,7 @@ const formSchema = yup.object({
 
 export default function SignUpForm() {
   const passwordInputRef = useRef(null);
+  const [showModal, setShowModal] = useState(false);
 
   const {
     handleSubmit,
@@ -39,8 +42,9 @@ export default function SignUpForm() {
     control,
   } = useForm({ resolver: yupResolver(formSchema) });
 
-  const onSubmit: SubmitHandler<typeof formSchema> = (data: any) =>
-    console.log(data);
+  const onSubmit: SubmitHandler<typeof formSchema> = (data: any) => {
+      setShowModal(true);
+  }
 
   return (
     <View className="flex-1 bg-[#e0b688] px-[20px] pt-[40px]">
@@ -112,6 +116,8 @@ export default function SignUpForm() {
           testID="password-requirements"
         />
       </View>
+
+      <FormModal show={showModal} onAction={() => router.push("/sign-in")} title="Thank you for signing up" btnTitle="Sign in"/>
 
       <Button text="Sign up" onPress={handleSubmit(onSubmit)} />
       <Text className="text-center font-serif text-base font-bold mt-[20px]">

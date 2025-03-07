@@ -3,7 +3,8 @@ import Button from "../components/SubmitButton";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import FormModal from "../components/Modal";
 
 const formSchema = yup.object({
   username: yup.string().required("Username is required").default(""),
@@ -12,6 +13,7 @@ const formSchema = yup.object({
 
 export default function SignInForm() {
   const passwordInputRef = useRef(null);
+  const [showModal, setShowModal] = useState(false);
 
   const {
     handleSubmit,
@@ -19,8 +21,9 @@ export default function SignInForm() {
     control,
   } = useForm({ resolver: yupResolver(formSchema) });
 
-  const onSubmit: SubmitHandler<typeof formSchema> = (data: any) =>
-    console.log(data);
+  const onSubmit: SubmitHandler<typeof formSchema> = (data: any) => {
+    setShowModal(true);
+  }
 
   return (
     <View className="flex-1 bg-[#e0b688] px-[20px] pt-[40px]">
@@ -71,6 +74,7 @@ export default function SignInForm() {
         {errors.password?.message && (
           <Text className="text-red-600 m-1">{errors.password?.message}</Text>
         )}
+        <FormModal show={showModal} title="You are logged in" btnTitle="OK" onAction={() => setShowModal(false)}/>
         <Button text="Sign in" onPress={handleSubmit(onSubmit)} />
         <Text className="text-center font-serif text-base font-bold mt-[20px]">
           Need to create an account? Sign up

@@ -51,4 +51,35 @@ describe("<SignInForm />", () => {
             expect(label).toBeOnTheScreen();
         });
     });
+    describe("Sign in Form modal", () => {
+        test("Modal should appear on screen when submit button is pressed", async () => {
+          const submitbtn = screen.getByTestId("submit-button");
+          const usernameField = screen.getByLabelText("Username text input");
+          const passwordField = screen.getByLabelText("Password input");
+          const user = userEvent.setup();
+
+          await user.type(usernameField, "Ahmed1");
+          await user.type(passwordField, "mypassword");
+          await user.press(submitbtn);
+
+          const modal = screen.getByTestId("form-modal");
+
+          expect(modal).toBeOnTheScreen();
+        });
+        test("Clicking on 'OK' when the modal is open, closes the modal", async () => {
+          const submitbtn = screen.getByTestId("submit-button");
+          const usernameField = screen.getByLabelText("Username text input");
+          const passwordField = screen.getByLabelText("Password input");
+          const user = userEvent.setup();
+
+          await user.type(usernameField, "Ahmed1");
+          await user.type(passwordField, "mypassword");
+          await user.press(submitbtn);
+
+          const modal = screen.getByTestId("form-modal");
+          await user.press(screen.getByText("OK"));
+
+          expect(modal).not.toBeOnTheScreen();
+        });
+  });
 });
