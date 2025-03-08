@@ -1,4 +1,5 @@
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const getItems = () => {
     return axios
@@ -19,3 +20,16 @@ export const createAccount = (username: string, password: string) => {
         })
         .catch(err => console.log(err))
 };
+
+export const signInUser = async (username: string, password: string) => {
+    try {
+        const response = await axios
+            .post("https://shopkeeper-e1dz.onrender.com/api/token/", { username, password });
+        if (response.status === 200) {
+            await AsyncStorage.setItem("access", response.data.access);
+            await AsyncStorage.setItem("refresh", response.data.refresh);
+        }
+    } catch (err) {
+        return console.log(err);
+    }
+}

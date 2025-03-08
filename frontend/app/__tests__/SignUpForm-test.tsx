@@ -3,10 +3,27 @@ import { renderRouter } from "expo-router/testing-library";
 import { userEvent } from "@testing-library/react-native";
 
 import SignUpForm from "../sign-up/index";
+import { server } from "./mocks/server";
+
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+);
 
 describe("<SignUpForm />", () => {
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: "error" });
+   });
+
   beforeEach(() => {
     render(<SignUpForm />);
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
+  });
+
+  afterAll(() => {
+    server.close();
   });
 
   test("Should render 'Sign up' text", () => {

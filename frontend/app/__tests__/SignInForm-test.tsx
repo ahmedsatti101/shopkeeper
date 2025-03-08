@@ -2,10 +2,27 @@ import { render, screen } from "@testing-library/react-native";
 import { userEvent } from "@testing-library/react-native";
 
 import SignInForm from "../sign-in";
+import { server } from "./mocks/server";
+
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+);
 
 describe("<SignInForm />", () => {
+    beforeAll(() => {
+        server.listen({ onUnhandledRequest: "error" });
+    });
+
     beforeEach(() => {
-        render(<SignInForm />);
+        render(<SignInForm />); 
+    });
+
+    afterEach(() => {
+        server.resetHandlers();
+    });
+
+    afterAll(() => {
+        server.close();
     });
 
     test("Should render 'Sign in' text", () => {
