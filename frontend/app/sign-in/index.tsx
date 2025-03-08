@@ -5,6 +5,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRef, useState } from "react";
 import FormModal from "../components/Modal";
+import { signInUser } from "../api";
 
 const formSchema = yup.object({
   username: yup.string().required("Username is required").default(""),
@@ -22,7 +23,8 @@ export default function SignInForm() {
   } = useForm({ resolver: yupResolver(formSchema) });
 
   const onSubmit: SubmitHandler<typeof formSchema> = (data: any) => {
-    setShowModal(true);
+    signInUser(data.username, data.password)
+        .then(() => setShowModal(true));
   }
 
   return (
