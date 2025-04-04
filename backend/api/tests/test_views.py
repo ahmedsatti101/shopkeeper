@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from api.models import Basket, BasketItem, Item
-from api.serializers import ItemSerializer
+from api.serializers import ItemSerializer, BasketItemSerializer
 
 client = Client()
 
@@ -343,3 +343,41 @@ class ItemsViewTests(TestCase):
         request = client.get("/api/items/?category=4")
 
         self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_all_basket_items(self):
+        client = APIClient()
+        User = get_user_model()
+        user = User.objects.create_user(username="testuser", password="password")
+        client.login(username="testuser", password="password")
+
+        request_data = json.dumps(
+            {
+                "item_id": self.lucazede.id,
+                "quantity": 1,
+                "username": user.username,
+                "password": user.password,
+            }
+        )
+
+        client.post(
+            "/api/basket/", data=request_data, content_type="application/json"
+        )
+        response = client.get("/api/basket/items/")
+        items = BasketItem.objects.all().filter(user=user)
+        serializer = BasketItemSerializer(items, many=True)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, serializer.data)
+
+    def test_404_user_has_no_items_in_basket(self):
+        User = get_user_model()
+        User.objects.create_user(username="testuser", password="password")
+
+        client.login(username="testuser", password="password")
+
+        response = client.get("/api/basket/items/")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_403_user_creds_not_provided_when_accessing_basket_items(self):
+        response = client.get("/api/basket/items/")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
