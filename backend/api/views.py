@@ -9,7 +9,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Basket, BasketItem, Item
-from .serializers import ItemSerializer, UserSerializer
+from .serializers import ItemSerializer, UserSerializer, BasketItemSerializer
 
 User = get_user_model()
 
@@ -134,3 +134,15 @@ def delete_item_from_basket(request, item_id):
     basket_item.delete()
 
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(["GET"])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def get_basket_items(request):
+    basket_item = BasketItem.objects.all().filter(user=request.user)
+    serializer = BasketItemSerializer(basket_item, many=True)
+
+    if not serializer.data:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    return Response(serializer.data, status=status.HTTP_200_OK)

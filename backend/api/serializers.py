@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from djmoney.money import Money
 from rest_framework import serializers
 
-from .models import BasketItem, Item
+from .models import BasketItem, Item, Basket
 
 User = get_user_model()
 
@@ -36,5 +36,10 @@ class ItemSerializer(serializers.ModelSerializer):
 
 class BasketSerializer(serializers.ModelSerializer):
     class Meta:
+        model = Basket
+        fields = ["total", "quantity"]
+
+class BasketItemSerializer(serializers.ModelSerializer):
+    class Meta:
         model = BasketItem
-        fields = ["item", "item_quantity"]
+        fields = ["id", "item", "item_quantity", "basket"]
