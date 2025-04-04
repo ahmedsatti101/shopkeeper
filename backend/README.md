@@ -7,7 +7,7 @@ The backend uses a `PostgreSQL` database and the `Django` framework. Django auth
 Assuming you created and activated the virtual enviroment from the main [README](../README.md), run:
 
 ```bash
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 to install the python packages used for this project.
