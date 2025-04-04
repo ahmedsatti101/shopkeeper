@@ -1,7 +1,8 @@
 import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
-import { getItems } from "../api";
+import { addToBasket, getItems } from "../api";
 import { useEffect, useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface Item {
     id: number;
@@ -57,7 +58,12 @@ export default function Home() {
                                     </Text>
                                     <Pressable
                                         className="bg-[#cc9861] items-center justify-center rounded-md h-10 p-2"
-                                        onPress={() => console.log("basket")}
+                                        onPress={async() => {
+                                          const username = await AsyncStorage.getItem("username");
+                                          const password = await AsyncStorage.getItem("password");
+                                          
+                                          await addToBasket(item.id, 1, username, password);
+                                        }}
                                         accessibilityLabel="Add to basket button"
                                     >
                                         <Text className="text-black text-[16px] font-serif font-bold">
