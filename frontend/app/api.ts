@@ -28,8 +28,19 @@ export const signInUser = async (username: string, password: string) => {
         if (response.status === 200) {
             await AsyncStorage.setItem("access", response.data.access);
             await AsyncStorage.setItem("refresh", response.data.refresh);
+            await AsyncStorage.setItem("username", username);
+            await AsyncStorage.setItem("password", password);
         }
     } catch (err) {
-        return console.log(err);
+        return err;
     }
+}
+
+export const addToBasket = async (item_id: number, quantity: number, username: string | null, password: string | null) => {
+  try {
+    const response = await axios.post("https://shopkeeper-e1dz.onrender.com/api/basket/", { item_id, quantity }, { auth: { username: username, password: password } });
+    if (response.status === 201) return response;
+  } catch (error) {
+    return error;
+  }
 }
