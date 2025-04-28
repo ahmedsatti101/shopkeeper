@@ -1,7 +1,5 @@
 # Shopkeeper
 
-### This is a work in progress so if you have got an input you would to provide or anything else, feel free to do so!
-
 ## About
 
 An online shop that allows users to browser available stock and add/remove items to/from their basket.
@@ -21,5 +19,3 @@ Create a Python virtual environment by typing `python3 -m venv env` or `python -
 ### Now you can read how to run both the backend and frontend by following their `README.md`:
 - [Frontend README.md](./frontend/README.md)
 - [Backend README.md](./backend/README.md)
-
-![Screenshot from dev](./frontend/assets/images/Screenshot%20from%202025-01-27%2014-53-29.png)
